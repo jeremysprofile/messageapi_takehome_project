@@ -1,0 +1,12 @@
+services:
+  api:
+    build: .
+    ports:
+      - 127.0.0.1:80:5000
+    depends_on:
+      - message-db
+  message-db:
+    image: mariadb:10.5
+    environment:
+      - MARIADB_ROOT_PASSWORD=guild
+      - MARIADB_DATABASE=messageapi
