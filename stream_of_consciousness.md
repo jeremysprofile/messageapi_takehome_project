@@ -63,9 +63,9 @@ This took over an hour. I should learn SQL better.
 CREATE DATABASE messageapi;
 USE messageapi;
 
-CREATE TABLE usernames (
-  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  username CHAR(15) NOT NULL
+CREATE TABL
+  username CHAR(15) NOT NULL,
+  UNIQUE(username)
 );
 CREATE TABLE partners (
   partner_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -130,6 +130,34 @@ Let's learn [flask](https://flask.palletsprojects.com/en/2.0.x/tutorial/).
 
 I didn't know that I needed to set `host='0.0.0.0'` and wasted 2 hours trying to figure out why I couldn't hit a flask port through Docker.
 
+[So basically](https://pythonbasics.org/flask-http-methods/) [it looks like:](https://programminghistorian.org/en/lessons/creating-apis-with-python-and-flask)
 
+```python
+@app.route('/api/v1/resources/books', methods=['GET'])
+def api_filter():
+    query_parameters = request.args
+
+@app.route('/login',methods = ['POST', 'GET'])
+def login():
+   if request.method == 'POST':
+      user = request.form['nm']
+      return redirect(url_for('success',name = user))
+   else:
+      user = request.args.get('nm')
+      return redirect(url_for('success',name = user))
+```
+where `query_parameters` is just a dictionary (-type thing that is really an ImmutableMultiDict, sure).
+
+
+
+### SQL Again
+Alright JK I hate my schema.
+
+So there's no real reason to have the username schema, right? Right.
+
+I can just lexicographically compare usernames to determine which goes first in the partners table.
+That's smart.
+
+Then I got tired so I just wrote documentation.
 
 
