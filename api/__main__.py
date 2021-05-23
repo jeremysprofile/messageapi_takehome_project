@@ -2,6 +2,7 @@ import flask
 import logging
 from .database_connection import DatabaseConnection
 from flask import request, jsonify
+from typing import Tuple
 
 
 app = flask.Flask(__name__)
@@ -59,16 +60,25 @@ def hello():
 
 
 @app.route('/api/v1/send/<user>/<partner>', methods=['POST', 'GET'])
-def send():
+def send(user: str, partner: str):
     if request.method == 'GET':
         # TODO docs here
         pass
     if request.method == 'POST':
+        user1, user2 = sort_users(user, partner)
         # does the user exist?
 
         pass
 
     return 'Hello, World!'
+
+
+def sort_users(user1: str, user2: str) -> Tuple[str, str]:
+    """lexicographic sort"""
+    if user1 < user2:
+        return user1, user2
+    else:
+        return user2, user1
 
 
 @app.route('/api/v1/query/<user>/<partner>', methods=['POST', 'GET'])
@@ -102,8 +112,6 @@ def main():
     with DatabaseConnection() as db:
         db.db_setup()
     logging.info("starting flask")
-    # I spent 2 hours figuring out that I needed host='0.0.0.0' in a Docker container, so that's fun
-    app.run(host='0.0.0.0')
 
 
 def setup_logging():
@@ -119,3 +127,5 @@ def setup_logging():
 
 if __name__ == "__main__":
     main()
+    # I spent 2 hours figuring out that I needed host='0.0.0.0' in a Docker container, so that's fun
+    app.run(host='0.0.0.0')

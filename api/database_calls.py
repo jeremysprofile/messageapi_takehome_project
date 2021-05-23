@@ -4,6 +4,8 @@ import logging
 # the partners schema does not enforce user1 < user2
 # so if you use it wrong, you could have an id, user1, user2 and an id, user2, user1 row
 # I can't tell if partners creates an index on the users, but I *think* it does?
+
+# auto_increment ids are fine since you can't use the id in the api.
 CREATE_PARTNERS_TABLE = """
     CREATE TABLE partners (
         relationship_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -24,16 +26,15 @@ CREATE_MESSAGES_TABLE = """
     );
 """
 
-CREATE_PARTNER_RELATIONSHIP = """
-    INSERT IGNORE INTO `partners` VALUES (NULL, ?, ?);
-"""
-
+# so INSERT ... RETURNING is a MariaDB thing, but it doesn't work when the insert is IGNOREd as a duplicate.
+# This could be further optimized, I'm sure.
 GET_PARTNER_ID = """
-    SELECT `relationship_id` from partners where `user_1` = ? and `user_2` = ?;
+    INSERT IGNORE INTO partners(user_1, user_2) VALUES (?, ?);
+    SELECT relationship_id from partners where user_1 = ? and user_2 = ?;
 """
 
 WRITE_MESSAGE = """
-    INSERT INTO `messages` VALUES (?, ?, NULL, ?);
+    INSERT INTO messages(relationship_id, sender, message) VALUES (?, ?, ?);
 """
 
 GET_MESSAGES = """

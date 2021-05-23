@@ -1,8 +1,9 @@
 import mariadb
 import logging
-from .database_calls import CREATE_PARTNERS_TABLE, CREATE_MESSAGES_TABLE, CREATE_PARTNER_RELATIONSHIP, GET_PARTNER_ID, WRITE_MESSAGE
+from .database_calls import CREATE_PARTNERS_TABLE, CREATE_MESSAGES_TABLE, GET_PARTNER_ID, WRITE_MESSAGE
 
 from typing import List
+
 
 class DatabaseConnection:
     CONFIG = {
@@ -49,16 +50,15 @@ class DatabaseConnection:
             self.cursor.execute(table_create)
 
     def get_partner_id(self, user1: str, user2: str) -> int:
-        """Return the ID of this user-recipient relationship.
-        Create if nonexistent."""
+        """Return the ID of this user-user relationship.
+        Creates if nonexistent."""
         # enforce unique partner relationship by just always shoving the lexicographically first username
         # in the first slot
         if user1 < user2:
             pass
         else:
             user1, user2 = user2, user1
-        self.cursor.execute(CREATE_PARTNER_RELATIONSHIP, (user1, user2))
-        self.cursor.execute(GET_PARTNER_ID, (user1, user2))
+        self.cursor.execute(GET_PARTNER_ID, (user1, user2, user1, user2))
         # should be unique, so only one row in
         rows = self.cursor.fetchall()
         assert len(rows) == 1, f"Got more rows than expected from partner query! Received {rows=}"
