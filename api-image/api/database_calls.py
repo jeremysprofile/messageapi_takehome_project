@@ -38,11 +38,11 @@ WRITE_MESSAGE = """
     INSERT INTO messages(relationship_id, sender, message) VALUES (?, ?, ?);
 """
 
-GET_MESSAGES = """
-    SELECT sender, message, sent FROM messages WHERE sent < ? AND relationship_id = ? LIMIT ?;
+GET_MESSAGES_BY_PARTNER_ID = """
+    SELECT sender, message, sent FROM messages WHERE relationship_id = ? AND sent < ? LIMIT ?;
 """
 
 GET_RECENT_MESSAGES = """
-    SELECT sender, message, sent FROM messages WHERE sent < ? LIMIT ?;
+    SELECT sender, message, sent FROM messages WHERE sent > ? LIMIT ?;
 """
 

@@ -1,8 +1,9 @@
 import mariadb
 import logging
-from .database_calls import WRITE_PARTNERS, GET_PARTNER_ID, WRITE_MESSAGE
+from .database_calls import WRITE_PARTNERS, GET_PARTNER_ID, WRITE_MESSAGE, GET_MESSAGES_BY_PARTNER_ID, GET_RECENT_MESSAGES
 
-from typing import List
+from typing import List, Tuple, Optional
+import datetime
 
 
 class DatabasePool:
@@ -62,5 +63,20 @@ class DatabaseConnection:
         # Spent 2 hours realizing I needed this >.<
         self.conn.commit()
 
-    def get_messages(self, partner_id: int, count=None, timestamp=None) -> List[str]:
-        pass
+    def get_messages(self, user1: str = None, user2: str = None, count: Optional[int] = None, timestamp: Optional[str] = None) -> List[Tuple[str]]:
+        """Return the messages we care about.
+        If both user1 and user2 are not provided, will return messages for every conversation partner.
+        If count is not provided, default to capping at 100 messages.
+        If timestamp is not provided, default to all messages in last 30 days
+        """
+        if count is None:
+            count = 100
+        if timestamp is None:
+            timestamp = str(datetime.date.today() - datetime.timedelta(days=30))
+        if user1 is not None and user2 is not None:
+            partner_id = self._get_partner_id(user1, user2)
+            self.cursor.execute(GET_MESSAGES_BY_PARTNER_ID, (partner_id, timestamp, count))
+        else:
+            self.cursor.execute(GET_RECENT_MESSAGES, (timestamp, count))
+        return self.cursor.fetchall()
+

@@ -27,9 +27,6 @@ docker compose up
 ```
 
 The api is available at `localhost:80/api/v1/`. `GET localhost:80/api/v1/` describes the endpoints.
-Currently, only that and `POST localhost:80/api/v1/send/<user>/<recipient>` with a `message` works.
-
-The easiest way to test for me was with Postman to add a `form-data` or `x-www-urlencoded` body with a key of `message`.
 
 ## Future Improvements
 See [`improvements.md`](./docs/improvements.md)

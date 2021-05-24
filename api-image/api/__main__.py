@@ -13,6 +13,7 @@ def create_db_pool():
     global pool
     pool = DatabasePool()
 
+
 @app.route('/api/v1')
 def hello():
     logging.info(request.args)
@@ -21,9 +22,8 @@ def hello():
     # But I don't know flask.
     return {
         "endpoints": {
-            '/api/v1/send/{user}/{partner}': {
+            '/api/v1/send/{sender}/{recipient}': {
                 'method': 'POST',
-                'content-type': 'application/json',
                 'body': {
                     'keys': {
                         'message': "The contents of the message to be sent."
@@ -31,7 +31,7 @@ def hello():
                 },
                 'description': (
                     "Writes the {message} to the database from "
-                    "{user} to {partner} with timestamp of time received."
+                    "{sender} to {recipient} with timestamp of time received."
                 ),
             },
             '/api/v1/query/?count={count}&timestamp={timestamp}': {
@@ -43,19 +43,19 @@ def hello():
                     "in the format described by {response-format}."
                 ),
             },
-            '/api/v1/query/{user}/{partner}?count={count}&timestamp={timestamp}': {
+            '/api/v1/query/{sender}/{recipient}?count={count}&timestamp={timestamp}': {
                 'method': 'GET',
                 'response-type': 'application/json',
                 'response-format': "[{'message': {message}, 'sender': {sender}, 'timestamp': {timestamp}},...]",
                 'description': (
                     "Returns <={count} messages that were sent after {timestamp} between "
-                    "{user} and {partner} in the format described by {response-format}."
+                    "{sender} and {recipient} in the format described by {response-format}."
                 ),
             },
         },
         "parameters": {
-            "user": "Username. <255 latin1 characters. User auto-created when used.",
-            "partner": "Recipient username. <255 latin1 characters. Recipient auto-created when used.",
+            "sender": "Username. <255 latin1 characters. Sender auto-created when used.",
+            "recipient": "Recipient username. <255 latin1 characters. Recipient auto-created when used.",
             "count": "Limit number of returned messages. Integer. Defaults to no limit.",
             "timestamp": "Limit messages to those after timestamp. Defaults to no limit.",
             "message": "Sent message. <65535 latin1 characters.",
@@ -64,44 +64,36 @@ def hello():
     }
 
 
-@app.route('/api/v1/send/<user>/<partner>', methods=['POST', 'GET'])
-def send(user: str, partner: str):
+@app.route('/api/v1/send/<sender>/<recipient>', methods=['POST', 'GET'])
+def send(sender: str, recipient: str):
     if request.method == 'GET':
         # TODO docs here
         pass
     if request.method == 'POST':
         db = get_db()
         message = request.values.get("message")
-        db.write_message(user, partner, message)
-        data = {'user': user, 'partner': partner, 'message': message}
+        db.write_message(sender, recipient, message)
+        data = {'sender': sender, 'recipient': recipient, 'message': message}
         logging.debug(data)
         return make_response(jsonify(data), 201)
 
 
-@app.route('/api/v1/query/<user>/<partner>', methods=['POST', 'GET'])
-def query():
-    if request.method == 'GET':
-        # TODO docs here
-        pass
-    if request.method == 'POST':
-        # does the user exist?
-
-        pass
-
-    return 'Hello, World!'
+@app.route('/api/v1/query/<sender>/<recipient>', methods=['GET'])
+def query(sender: str, recipient: str):
+    timestamp = request.args.get('timestamp')
+    max_count = request.args.get('count')
+    db = get_db()
+    response = db.get_messages(user1=sender, user2=recipient, count=max_count, timestamp=timestamp)
+    return make_response(jsonify(response), 200)
 
 
 @app.route('/api/v1/query', methods=['POST', 'GET'])
 def query_all():
-    if request.method == 'GET':
-        # TODO docs here
-        pass
-    if request.method == 'POST':
-        # does the user exist?
-
-        pass
-
-    return 'Hello, World!'
+    timestamp = request.args.get('timestamp')
+    max_count = request.args.get('count')
+    db = get_db()
+    response = db.get_messages(count=max_count, timestamp=timestamp)
+    return make_response(jsonify(response), 200)
 
 
 @app.teardown_appcontext
