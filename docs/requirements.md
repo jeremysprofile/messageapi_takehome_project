@@ -14,7 +14,7 @@ Assume this is a global api that can be leveraged by anyone, security is not a c
 ## Other Considerations
 Here are some additional considerations to help you decide what and how much to build:
 1. We're only expecting a couple hours to a half day of effort, though you're free to spend more if inspired.
-2. Any functionality beyond the core features aboveis strictly optional but we'd be lying to say we're not impressed by something really cool you sneak in, whether it's from existing apps or your own idea entirely
+2. Any functionality beyond the core features above is strictly optional but we'd be lying to say we're not impressed by something really cool you sneak in, whether it's from existing apps or your own idea entirely
 3. If you get stuck and don't feel like you can finish this in a short amount of time (or at all), that's fine; just build what you can and supplement it with a detailed written description/design on where things ended up, where you would go next with more time, and be ready to talk about it.
 4. At any point if you'd like help or feedback with something you're stuck on feel free to reach out to me by email (pretend I'm another experienced engineer on your team but not on the same project); how much help you want is up to you, and while asking questions is not viewed negatively, we love seeing how much you can accomplish by yourself even if it's not ideal since we all do a lot of self-directed learning at a startup!
 ## Ground Rules
