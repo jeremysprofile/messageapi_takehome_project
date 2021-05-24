@@ -1,12 +1,17 @@
 import flask
 import logging
-from .database_connection import DatabaseConnection
-from flask import request, jsonify
-from typing import Tuple
+from .database_connection import DatabaseConnection, DatabasePool
+from flask import request, jsonify, g, make_response
 
 
 app = flask.Flask(__name__)
+pool = None
 
+
+@app.before_first_request
+def create_db_pool():
+    global pool
+    pool = DatabasePool()
 
 @app.route('/api/v1')
 def hello():
@@ -65,20 +70,12 @@ def send(user: str, partner: str):
         # TODO docs here
         pass
     if request.method == 'POST':
-        user1, user2 = sort_users(user, partner)
-        # does the user exist?
-
-        pass
-
-    return 'Hello, World!'
-
-
-def sort_users(user1: str, user2: str) -> Tuple[str, str]:
-    """lexicographic sort"""
-    if user1 < user2:
-        return user1, user2
-    else:
-        return user2, user1
+        db = get_db()
+        message = request.values.get("message")
+        db.write_message(user, partner, message)
+        data = {'user': user, 'partner': partner, 'message': message}
+        logging.debug(data)
+        return make_response(jsonify(data), 201)
 
 
 @app.route('/api/v1/query/<user>/<partner>', methods=['POST', 'GET'])
@@ -107,11 +104,27 @@ def query_all():
     return 'Hello, World!'
 
 
+@app.teardown_appcontext
+def teardown_db(exception):
+    db = g.pop('db', None)
+    if db is not None:
+        logging.debug("Closing DB connection")
+        db.close()
+
+
+def get_db():
+    if 'db' not in g:
+        g.db = DatabaseConnection(pool)
+    return g.db
+
+
 def main():
     setup_logging()
-    with DatabaseConnection() as db:
-        db.db_setup()
     logging.info("starting flask")
+    # I spent 2 hours figuring out that I needed host='0.0.0.0' in a Docker container, so that's fun
+    # I think calling app.run() from here prevents certain ways of running Flask
+    # but I'm not running Flask those ways.
+    app.run(host='0.0.0.0')
 
 
 def setup_logging():
@@ -127,5 +140,3 @@ def setup_logging():
 
 if __name__ == "__main__":
     main()
-    # I spent 2 hours figuring out that I needed host='0.0.0.0' in a Docker container, so that's fun
-    app.run(host='0.0.0.0')

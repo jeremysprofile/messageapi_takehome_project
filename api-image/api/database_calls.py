@@ -1,6 +1,3 @@
-import mariadb
-import logging
-
 # the partners schema does not enforce user1 < user2
 # so if you use it wrong, you could have an id, user1, user2 and an id, user2, user1 row
 # I can't tell if partners creates an index on the users, but I *think* it does?
@@ -15,6 +12,8 @@ CREATE_PARTNERS_TABLE = """
     );
 """
 
+# these aren't actually used; the DB image creates the schema, but
+# they're a nice reference to have.
 CREATE_MESSAGES_TABLE = """
     CREATE TABLE messages (
         relationship_id INT NOT NULL,
@@ -28,8 +27,10 @@ CREATE_MESSAGES_TABLE = """
 
 # so INSERT ... RETURNING is a MariaDB thing, but it doesn't work when the insert is IGNOREd as a duplicate.
 # This could be further optimized, I'm sure.
-GET_PARTNER_ID = """
+WRITE_PARTNERS = """
     INSERT IGNORE INTO partners(user_1, user_2) VALUES (?, ?);
+"""
+GET_PARTNER_ID = """
     SELECT relationship_id from partners where user_1 = ? and user_2 = ?;
 """
 

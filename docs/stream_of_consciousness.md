@@ -55,7 +55,7 @@ I just grabbed the [latest stable](https://hub.docker.com/_/mariadb) docker imag
 
 ```bash
 docker run -p 3306:3306 --name message-db -e MARIADB_ROOT_PASSWORD=test -d mariadb:10.5
-mysql -h 127.0.0.1 -u root -p
+mysql -h 127.0.0.1 -u root -pguild
 ```
 
 This took over an hour. I should learn SQL better.
@@ -158,6 +158,41 @@ So there's no real reason to have the username schema, right? Right.
 I can just lexicographically compare usernames to determine which goes first in the partners table.
 That's smart.
 
-Then I got tired so I just wrote documentation.
+Then I got tired and stopped to write documentation.
+
+I spent a bit trying to find if there was a good way to "get ID for row and create row if it does not exist".
+There probably is, but `INSERT ... RETURNING` doesn't do what I want, so I gave up and just made it be 2 statements.
+
+Also, I could be using a [ConnectionPool()](https://mariadb.com/docs/reference/conpy/api/ConnectionPool/).
 
 
+### Flask Again
+
+I learned about [the difference between application context and request
+context](https://flask.palletsprojects.com/en/2.0.x/appcontext/).
+
+> Typically, an application context will have the same lifetime as a request
+
+Okay, so it's just a place to shove variables you need for handling a request, and also allows some
+[teardown mechanics](https://flask.palletsprojects.com/en/2.0.x/api/#flask.Flask.teardown_appcontext).
+
+So where do I store my true global context, like my database connection pool?
+
+There is [`@before_first
+request`](https://flask.palletsprojects.com/en/2.0.x/api/?highlight=before_first_request#flask.Flask.before_first_request):
+
+> Registers a function to be run before the first request to this instance of the application.
+
+Note it's per instance, so we can make a connection pool for each instance, I think?
+We'll just store some nonsense `global pool` object, and I guess that's as good as we're gonna get.
+
+Maybe we're supposed to create it in an [app factory](https://flask.palletsprojects.com/en/2.0.x/patterns/appfactories/)
+but I don't actually know if those are useful / necessary without using blueprints, so I'm ignoring it.
+
+I did decide it was better to make our own SQL image with a schema rather than having the python code create the schema, mainly because I don't want to create the schema twice if we have multiple threads.
+
+
+## Gotchas
+
+I was doing dumb things with the SQL connector - first trying to do multiple commands in one `execute()`, and then forgetting to call `.commit()`.
+I wasted 2 hours on that. Rough.

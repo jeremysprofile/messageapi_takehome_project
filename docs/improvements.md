@@ -23,3 +23,7 @@ already took way over the 4 hours Guild told me to allocate, so here we are.
 * Make containers auto-restart on failure
 * Multi-node cluster (either Docker Swarm or Kubernetes)
 * Logging and monitoring
+
+## Codebase
+Use `black`, `isort`, `mypy`, and `pylint` to lint and style-check the code.
+Write tests in `pytest`. Ran out of time to do this.
