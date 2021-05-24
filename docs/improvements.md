@@ -18,6 +18,8 @@ does not provide the ability to be notified of a new message from a new sender.
 A better design would be using websockets ... somehow. Unfortunately, I've never used websockets, and this project
 already took way over the 4 hours Guild told me to allocate, so here we are.
 
+Also, pagination would probably be useful, instead of requiring the caller to change the timestamp they're looking at.
+
 ## Resiliency
 * Persistent storage volumes rather than ephemeral container storage
 * Make containers auto-restart on failure

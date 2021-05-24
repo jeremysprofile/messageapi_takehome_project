@@ -39,7 +39,7 @@ WRITE_MESSAGE = """
 """
 
 GET_MESSAGES_BY_PARTNER_ID = """
-    SELECT sender, message, sent FROM messages WHERE relationship_id = ? AND sent < ? LIMIT ?;
+    SELECT sender, message, sent FROM messages WHERE relationship_id = ? AND sent > ? LIMIT ?;
 """
 
 GET_RECENT_MESSAGES = """

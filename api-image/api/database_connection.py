@@ -10,7 +10,7 @@ class DatabasePool:
     def __init__(self):
         self.pool = mariadb.ConnectionPool(
             pool_name='pool',
-            pool_size=3,
+            pool_size=1,
             pool_reset_connection=False,
             host='message-db',
             port=3306,
@@ -55,7 +55,7 @@ class DatabaseConnection:
         self.cursor.execute(GET_PARTNER_ID, (user1, user2))
         # should be unique, so only one row in
         rows = self.cursor.fetchall()
-        logging.info(f"Response from getting partner id: {rows=}")
+        logging.debug(f"Response from getting partner id: {rows=}")
         assert len(rows) == 1, f"Got more rows than expected from partner query! Received {rows=}"
         return rows[0][0]
 
@@ -81,7 +81,9 @@ class DatabaseConnection:
             self.cursor.execute(GET_MESSAGES_BY_PARTNER_ID, (partner_id, timestamp, count))
         else:
             self.cursor.execute(GET_RECENT_MESSAGES, (timestamp, count))
-        return self.dict_of(self.cursor.fetchall(), self.get_message_keys)
+        results = self.cursor.fetchall()
+        logging.debug(f"Found and returning {len(results)} message(s).")
+        return self.dict_of(results, self.get_message_keys)
 
     @staticmethod
     def dict_of(rows: List[Tuple[Any]], keys: List[str]) -> List[Dict[str, str]]:

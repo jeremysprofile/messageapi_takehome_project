@@ -26,7 +26,10 @@ cd messageapi_takehome_project/  # the dir where this README is
 docker compose up
 ```
 
+### Use
 The api is available at `localhost:80/api/v1/`. `GET localhost:80/api/v1/` describes the endpoints.
+
+Examples are available at [`examples.md`](./docs/examples.md).
 
 ## Future Improvements
 See [`improvements.md`](./docs/improvements.md)
