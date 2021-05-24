@@ -57,9 +57,12 @@ def hello():
             "sender": "Username. <255 latin1 characters. Sender auto-created when used.",
             "recipient": "Recipient username. <255 latin1 characters. Recipient auto-created when used.",
             "count": "Limit number of returned messages. Integer. Defaults to no limit.",
-            "timestamp": "Limit messages to those after timestamp. Defaults to no limit.",
+            "timestamp": (
+                "When returned, output like 'Mon, 24 May 2021 16:41:04 GMT'. "
+                "When provided, accepts epoch seconds ('1621875125'), date ('2021-05-24'), and probably others. "
+                "If not provided, defaults to 30 days ago."
+            ),
             "message": "Sent message. <65535 latin1 characters.",
-            "sender": "Sender. <255 latin1 characters. Will be one of the two usernames in the conversation."
         }
     }
 

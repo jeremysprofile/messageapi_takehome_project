@@ -2,7 +2,7 @@ import mariadb
 import logging
 from .database_calls import WRITE_PARTNERS, GET_PARTNER_ID, WRITE_MESSAGE, GET_MESSAGES_BY_PARTNER_ID, GET_RECENT_MESSAGES
 
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Optional, Dict, Any
 import datetime
 
 
@@ -24,6 +24,9 @@ class DatabasePool:
 
 
 class DatabaseConnection:
+
+    get_message_keys = ['sender', 'message', 'timestamp']
+
     def __init__(self, pool):
         self.conn = None
         self.create_db_connection(pool)
@@ -63,7 +66,7 @@ class DatabaseConnection:
         # Spent 2 hours realizing I needed this >.<
         self.conn.commit()
 
-    def get_messages(self, user1: str = None, user2: str = None, count: Optional[int] = None, timestamp: Optional[str] = None) -> List[Tuple[str]]:
+    def get_messages(self, user1: str = None, user2: str = None, count: Optional[int] = None, timestamp: Optional[str] = None) -> List[Dict[str, str]]:
         """Return the messages we care about.
         If both user1 and user2 are not provided, will return messages for every conversation partner.
         If count is not provided, default to capping at 100 messages.
@@ -78,5 +81,12 @@ class DatabaseConnection:
             self.cursor.execute(GET_MESSAGES_BY_PARTNER_ID, (partner_id, timestamp, count))
         else:
             self.cursor.execute(GET_RECENT_MESSAGES, (timestamp, count))
-        return self.cursor.fetchall()
+        return self.dict_of(self.cursor.fetchall(), self.get_message_keys)
 
+    @staticmethod
+    def dict_of(rows: List[Tuple[Any]], keys: List[str]) -> List[Dict[str, str]]:
+        """There's probably a way for MariaDB to return a dictionary instead of a tuple, but this works."""
+        output = []
+        for row in rows:
+            output.append({key: val for key, val in zip(keys, row)})
+        return output
